@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-mono: 'Share Tech Mono', ui-monospace, monospace;
+
+  --color-bg: #0a0a0f;
+  --color-card: #0d1117;
+  --color-matrix: #00ff41;
+  --color-alert: #ff3333;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #64748b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Scanline overlay for camera feed aesthetic */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 65, 0.04) 0px,
+    rgba(0, 255, 65, 0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  z-index: 5;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  z-index: 6;
+}
+
+/* Glowing border for active elements */
+.glow-border {
+  border: 1px solid var(--color-matrix);
+  box-shadow:
+    0 0 8px rgba(0, 255, 65, 0.6),
+    0 0 24px rgba(0, 255, 65, 0.25),
+    inset 0 0 12px rgba(0, 255, 65, 0.08);
+}
+
+.glow-border-alert {
+  border: 1px solid var(--color-alert);
+  box-shadow:
+    0 0 8px rgba(255, 51, 51, 0.7),
+    0 0 28px rgba(255, 51, 51, 0.35),
+    inset 0 0 12px rgba(255, 51, 51, 0.1);
+}
+
+/* Radar pulse animation for surveillance indicator */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.radar-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--color-alert);
+  animation: radar-pulse 1.6s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* Motion alert flash border */
+@keyframes flash-border {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 51, 51, 0);
+  }
+  30% {
+    box-shadow:
+      0 0 0 4px rgba(255, 51, 51, 0.9),
+      0 0 40px rgba(255, 51, 51, 0.6);
+  }
+}
+
+.flash-motion {
+  animation: flash-border 0.5s ease-out;
+}
+
+/* Smooth screen transitions */
+.screen-fade-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.screen-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 65, 0.25);
+  border-radius: 9999px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.input-field {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  background-color: var(--color-card);
+  padding: 0 0.875rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  outline: none;
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.input-field::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.input-field:focus {
+  border-color: var(--color-matrix);
+  box-shadow: 0 0 0 1px rgba(0, 255, 65, 0.3), 0 0 12px rgba(0, 255, 65, 0.2);
+}

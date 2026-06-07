@@ -1,0 +1,75 @@
+export const fr = {
+  appName: 'GuardCam',
+  tagline: 'Surveillance Intelligente',
+
+  setup: {
+    cameraToggle: 'Changer de caméra',
+    whatsappLabel: 'Numéro WhatsApp',
+    whatsappPlaceholder: '+216 XX XXX XXX',
+    locationLabel: "Nom de l'emplacement",
+    locationPlaceholder: 'Entrée principale',
+    sensitivityLabel: 'Sensibilité',
+    sensitivityLow: 'Faible',
+    sensitivityMedium: 'Moyen',
+    sensitivityHigh: 'Élevé',
+    soundLabel: "Alerte sonore",
+    soundOn: 'ON',
+    soundOff: 'OFF',
+    nightVisionLabel: 'Mode vision nocturne',
+    nightVisionAuto: 'Auto',
+    nightVisionForceNight: 'Forcé Nuit',
+    nightVisionForceDay: 'Forcé Jour',
+    whatsappMethodLabel: 'Méthode WhatsApp',
+    whatsappMethodManual: 'Manuel (lien wa.me)',
+    whatsappMethodAuto: 'Automatique (Whapi.Cloud)',
+    whapiKeyLabel: 'Clé API Whapi.Cloud',
+    whapiKeyPlaceholder: 'Votre clé API…',
+    startButton: '🚀 DÉMARRER LA SURVEILLANCE',
+    cameraError: 'Caméra indisponible — vérifiez les permissions.',
+  },
+
+  surveillance: {
+    statusActive: 'EN SURVEILLANCE',
+    alertsCount: 'alertes',
+    statActive: 'Surveillance active',
+    statLocation: 'Emplacement',
+    statBrightness: 'Luminosité',
+    pause: 'PAUSE',
+    resume: 'REPRENDRE',
+    capture: 'CAPTURE',
+    stop: 'STOP',
+    motionDetected: 'Mouvement détecté !',
+    batteryLow: 'Batterie faible',
+  },
+
+  tabs: {
+    live: 'Live',
+    alerts: 'Alertes',
+    config: 'Config',
+  },
+
+  alerts: {
+    headerToday: "Alertes — Aujourd'hui",
+    filterAll: 'Tout',
+    filterMotion: 'Mouvement',
+    filterManual: 'Manuel',
+    diff: 'Diff',
+    duration: 'Durée',
+    view: 'Voir',
+    download: 'DL',
+    delete: 'Sup',
+    downloadAll: 'Télécharger tout',
+    clearHistory: "Vider l'historique",
+    empty: 'Aucune alerte pour le moment.',
+    confirmClear: "Vider tout l'historique des alertes ?",
+    confirmDelete: 'Supprimer cette alerte ?',
+    typeMotion: 'Mouvement',
+    typeManual: 'Manuel',
+  },
+
+  common: {
+    seconds: 's',
+  },
+} as const
+
+export type Translations = typeof fr
