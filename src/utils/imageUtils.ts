@@ -16,12 +16,6 @@ export function captureFrameAsJpeg(
   return canvas.toDataURL('image/jpeg', quality)
 }
 
-/** Converts a base64 data URL (e.g. "data:image/jpeg;base64,...") into raw base64 (no prefix). */
-export function stripDataUrlPrefix(dataUrl: string): string {
-  const commaIndex = dataUrl.indexOf(',')
-  return commaIndex === -1 ? dataUrl : dataUrl.slice(commaIndex + 1)
-}
-
 /** Triggers a browser download of a base64 JPEG data URL. */
 export function downloadDataUrl(dataUrl: string, filename: string): void {
   const link = document.createElement('a')

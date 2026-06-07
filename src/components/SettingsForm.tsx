@@ -18,15 +18,26 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
 
   return (
     <div className="space-y-5">
-      <Field label={fr.setup.whatsappLabel}>
+      <Field label={fr.setup.emailLabel}>
         <input
-          type="tel"
-          inputMode="tel"
-          value={settings.whatsappNumber}
-          onChange={(e) => onChange({ whatsappNumber: e.target.value })}
-          placeholder={fr.setup.whatsappPlaceholder}
+          type="email"
+          inputMode="email"
+          value={settings.notificationEmail}
+          onChange={(e) => onChange({ notificationEmail: e.target.value })}
+          placeholder={fr.setup.emailPlaceholder}
           className="input-field"
         />
+      </Field>
+
+      <Field label={fr.setup.emailApiKeyLabel}>
+        <input
+          type="text"
+          value={settings.emailApiKey}
+          onChange={(e) => onChange({ emailApiKey: e.target.value })}
+          placeholder={fr.setup.emailApiKeyPlaceholder}
+          className="input-field"
+        />
+        <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.emailApiKeyHelp}</p>
       </Field>
 
       <Field label={fr.setup.locationLabel}>
@@ -79,29 +90,6 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
         />
       </Field>
 
-      <Field label={fr.setup.whatsappMethodLabel}>
-        <div className="space-y-2">
-          <RadioOption
-            checked={settings.whatsappMethod === 'manual'}
-            label={fr.setup.whatsappMethodManual}
-            onSelect={() => onChange({ whatsappMethod: 'manual' })}
-          />
-          <RadioOption
-            checked={settings.whatsappMethod === 'auto'}
-            label={fr.setup.whatsappMethodAuto}
-            onSelect={() => onChange({ whatsappMethod: 'auto' })}
-          />
-        </div>
-        {settings.whatsappMethod === 'auto' && (
-          <input
-            type="text"
-            value={settings.whapiKey}
-            onChange={(e) => onChange({ whapiKey: e.target.value })}
-            placeholder={fr.setup.whapiKeyPlaceholder}
-            className="input-field mt-2"
-          />
-        )}
-      </Field>
     </div>
   )
 }
@@ -142,26 +130,5 @@ function ToggleGroup<T extends string | boolean>({ options, value, onChange }: T
         )
       })}
     </div>
-  )
-}
-
-function RadioOption({ checked, label, onSelect }: { checked: boolean; label: string; onSelect: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`flex min-h-12 w-full items-center gap-3 rounded-md border px-3 text-left text-sm transition-all duration-300 ${
-        checked ? 'glow-border bg-matrix/10 text-matrix' : 'border-text-secondary/25 bg-card text-text-secondary'
-      }`}
-    >
-      <span
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-          checked ? 'border-matrix' : 'border-text-secondary/40'
-        }`}
-      >
-        {checked && <span className="h-2 w-2 rounded-full bg-matrix" />}
-      </span>
-      {label}
-    </button>
   )
 }

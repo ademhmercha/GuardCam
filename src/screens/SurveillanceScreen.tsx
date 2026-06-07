@@ -7,7 +7,7 @@ import { useCamera } from '../hooks/useCamera'
 import { useNightVision } from '../hooks/useNightVision'
 import { useMotionDetection, type MotionEvent } from '../hooks/useMotionDetection'
 import { useAlertStorage } from '../hooks/useAlertStorage'
-import { useWhatsApp } from '../hooks/useWhatsApp'
+import { useEmailAlert } from '../hooks/useEmailAlert'
 import { useAudioAlert } from '../hooks/useAudioAlert'
 import { useSettings } from '../hooks/useSettings'
 import { usePageVisibility } from '../hooks/usePageVisibility'
@@ -34,7 +34,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const { videoRef, isReady } = useCamera()
   const feedRef = useRef<CameraFeedHandle | null>(null)
   const { addAlert } = useAlertStorage()
-  const { sendAlert } = useWhatsApp(settings)
+  const { sendAlert } = useEmailAlert(settings)
   const { playBeep } = useAudioAlert(settings.soundEnabled)
   const isVisible = usePageVisibility()
   const batteryLevel = useBatteryLevel()

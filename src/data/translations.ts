@@ -4,8 +4,12 @@ export const fr = {
 
   setup: {
     cameraToggle: 'Changer de caméra',
-    whatsappLabel: 'Numéro WhatsApp',
-    whatsappPlaceholder: '+216 XX XXX XXX',
+    emailLabel: 'Email de notification',
+    emailPlaceholder: 'votre@email.com',
+    emailApiKeyLabel: 'Clé API (Web3Forms)',
+    emailApiKeyPlaceholder: 'Votre clé d’accès…',
+    emailApiKeyHelp:
+      'Créez une clé gratuite sur web3forms.com reliée à votre adresse — les captures seront envoyées automatiquement par email, en pièce jointe.',
     locationLabel: "Nom de l'emplacement",
     locationPlaceholder: 'Entrée principale',
     sensitivityLabel: 'Sensibilité',
@@ -19,11 +23,6 @@ export const fr = {
     nightVisionAuto: 'Auto',
     nightVisionForceNight: 'Forcé Nuit',
     nightVisionForceDay: 'Forcé Jour',
-    whatsappMethodLabel: 'Méthode WhatsApp',
-    whatsappMethodManual: 'Manuel (lien wa.me)',
-    whatsappMethodAuto: 'Automatique (Whapi.Cloud)',
-    whapiKeyLabel: 'Clé API Whapi.Cloud',
-    whapiKeyPlaceholder: 'Votre clé API…',
     startButton: '🚀 DÉMARRER LA SURVEILLANCE',
     cameraError: 'Caméra indisponible — vérifiez les permissions.',
   },

@@ -2,7 +2,6 @@ import type { NightModeKey } from './data/nightModes'
 
 export type SensitivityLevel = 'low' | 'medium' | 'high'
 export type NightVisionPreference = 'auto' | 'night' | 'normal'
-export type WhatsAppMethod = 'manual' | 'auto'
 export type AlertType = 'motion' | 'manual'
 export type CameraFacing = 'user' | 'environment'
 
@@ -18,23 +17,21 @@ export interface Alert {
 }
 
 export interface Settings {
-  whatsappNumber: string
+  notificationEmail: string
+  emailApiKey: string
   locationName: string
   sensitivity: SensitivityLevel
   soundEnabled: boolean
   nightVisionMode: NightVisionPreference
-  whatsappMethod: WhatsAppMethod
-  whapiKey: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  whatsappNumber: '',
+  notificationEmail: '',
+  emailApiKey: '',
   locationName: 'Entrée principale',
   sensitivity: 'medium',
   soundEnabled: true,
   nightVisionMode: 'auto',
-  whatsappMethod: 'manual',
-  whapiKey: '',
 }
 
 /** Pixel-diff threshold (0-255 channel delta) per sensitivity step. */
