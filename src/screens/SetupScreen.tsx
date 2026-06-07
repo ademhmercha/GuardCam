@@ -58,7 +58,7 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
           })()
 
   return (
-    <div className="mx-auto flex min-h-full max-w-2xl flex-col">
+    <div className="mx-auto flex min-h-full max-w-2xl flex-col pb-28">
       <header className="px-5 pt-8 pb-4 text-center">
         <h1 className="text-3xl tracking-widest text-matrix drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]">
           🔒 {fr.appName}
@@ -87,11 +87,11 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
         )}
       </section>
 
-      <section className="mt-6 flex-1 px-5 pb-32">
+      <section className="mt-6 flex-1 px-5">
         <SettingsForm settings={settings} onChange={updateSettings} />
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-matrix/15 bg-bg/95 px-5 py-4 backdrop-blur-md">
+      <section className="px-5 pt-6">
         <button
           type="button"
           onClick={() => navigate('/surveillance')}
@@ -99,7 +99,7 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
         >
           {fr.setup.startButton}
         </button>
-      </div>
+      </section>
     </div>
   )
 }

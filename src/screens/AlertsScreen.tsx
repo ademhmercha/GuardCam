@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AlertCard } from '../components/AlertCard'
-import { TabBar } from '../components/TabBar'
 import { useAlertStorage } from '../hooks/useAlertStorage'
 import { downloadDataUrl, formatTimestampForFilename } from '../utils/imageUtils'
 import { fr } from '../data/translations'
@@ -27,7 +25,6 @@ function isToday(timestamp: number): boolean {
 
 /** Screen 3 — alert history with filters, viewer, per-card actions and bulk operations. */
 export function AlertsScreen() {
-  const navigate = useNavigate()
   const { alerts, deleteAlert, clearAll } = useAlertStorage()
   const [filter, setFilter] = useState<FilterKey>('all')
   const [viewing, setViewing] = useState<Alert | null>(null)
@@ -122,14 +119,6 @@ export function AlertsScreen() {
           />
         </div>
       )}
-
-      <TabBar
-        active="alerts"
-        onChange={(tab) => {
-          if (tab === 'live') navigate('/surveillance')
-          else if (tab === 'config') navigate('/')
-        }}
-      />
     </div>
   )
 }

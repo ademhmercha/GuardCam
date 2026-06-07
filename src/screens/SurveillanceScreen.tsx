@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CameraFeed, type CameraFeedHandle } from '../components/CameraFeed'
 import { NightVisionFilter } from '../components/NightVisionFilter'
-import { TabBar } from '../components/TabBar'
 import { useCamera } from '../hooks/useCamera'
 import { useNightVision } from '../hooks/useNightVision'
 import { useMotionDetection, type MotionEvent } from '../hooks/useMotionDetection'
@@ -196,14 +195,6 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
         <ActionButton emoji="📸" label={fr.surveillance.capture} onClick={handleCapture} accent />
         <ActionButton emoji="⛔" label={fr.surveillance.stop} onClick={handleStop} danger />
       </section>
-
-      <TabBar
-        active="live"
-        onChange={(tab) => {
-          if (tab === 'alerts') navigate('/alertes')
-          else if (tab === 'config') navigate('/')
-        }}
-      />
     </div>
   )
 }
