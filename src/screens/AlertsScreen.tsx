@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertCard } from '../components/AlertCard'
 import { useAlertStorage } from '../hooks/useAlertStorage'
 import { downloadDataUrl, formatTimestampForFilename } from '../utils/imageUtils'
+import { extensionForMimeType } from '../utils/clipRecorder'
 import { fr } from '../data/translations'
 import type { Alert, AlertType } from '../types'
 
@@ -25,7 +26,7 @@ function isToday(timestamp: number): boolean {
 
 /** Screen 3 — alert history with filters, viewer, per-card actions and bulk operations. */
 export function AlertsScreen() {
-  const { alerts, deleteAlert, clearAll } = useAlertStorage()
+  const { alerts, deleteAlert, clearAll, getVideo } = useAlertStorage()
   const [filter, setFilter] = useState<FilterKey>('all')
   const [viewing, setViewing] = useState<Alert | null>(null)
 
@@ -106,19 +107,103 @@ export function AlertsScreen() {
         </section>
       )}
 
-      {viewing && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/85 p-4"
-          onClick={() => setViewing(null)}
-        >
-          <img
-            src={viewing.imageData}
-            alt=""
-            className="max-h-[80vh] max-w-full rounded-lg glow-border object-contain"
-            onClick={(e) => e.stopPropagation()}
+      {viewing && <AlertViewer alert={viewing} getVideo={getVideo} onClose={() => setViewing(null)} />}
+    </div>
+  )
+}
+
+type ViewerStatus = 'idle' | 'loading' | 'ready' | 'error'
+
+interface AlertViewerProps {
+  alert: Alert
+  getVideo: (id: string) => Promise<Blob | null>
+  onClose: () => void
+}
+
+/** Fullscreen viewer — plays the recorded clip when available, falling back to the captured photo. */
+function AlertViewer({ alert, getVideo, onClose }: AlertViewerProps) {
+  const [status, setStatus] = useState<ViewerStatus>('idle')
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
+
+  useEffect(() => {
+    if (!alert.hasVideo) {
+      setStatus('idle')
+      setVideoBlob(null)
+      setVideoUrl(null)
+      return
+    }
+    let cancelled = false
+    setStatus('loading')
+    void getVideo(alert.id).then((blob) => {
+      if (cancelled) return
+      if (!blob) {
+        setStatus('error')
+        return
+      }
+      setVideoBlob(blob)
+      setVideoUrl(URL.createObjectURL(blob))
+      setStatus('ready')
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [alert, getVideo])
+
+  useEffect(() => {
+    return () => {
+      if (videoUrl) URL.revokeObjectURL(videoUrl)
+    }
+  }, [videoUrl])
+
+  const handleDownloadVideo = () => {
+    if (!videoBlob) return
+    const objectUrl = URL.createObjectURL(videoBlob)
+    const filename = `guardcam-${formatTimestampForFilename(new Date(alert.timestamp))}.${extensionForMimeType(alert.videoMimeType)}`
+    const link = document.createElement('a')
+    link.href = objectUrl
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(objectUrl)
+  }
+
+  return (
+    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-3 bg-black/85 p-4" onClick={onClose}>
+      <div className="flex max-h-[85vh] flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
+        {status === 'ready' && videoUrl ? (
+          <video
+            src={videoUrl}
+            poster={alert.imageData}
+            controls
+            autoPlay
+            loop
+            playsInline
+            className="max-h-[75vh] max-w-full rounded-lg glow-border object-contain"
           />
-        </div>
-      )}
+        ) : (
+          <img
+            src={alert.imageData}
+            alt=""
+            className="max-h-[75vh] max-w-full rounded-lg glow-border object-contain"
+          />
+        )}
+
+        {status === 'loading' && <p className="text-xs text-text-secondary">{fr.alerts.videoLoading}</p>}
+        {status === 'error' && <p className="text-xs text-alert">{fr.alerts.videoUnavailable}</p>}
+
+        {status === 'ready' && videoBlob && (
+          <button
+            type="button"
+            onClick={handleDownloadVideo}
+            className="flex min-h-12 items-center gap-2 rounded-md border border-matrix/30 px-4 text-sm text-matrix transition-colors duration-300 hover:bg-matrix/10"
+          >
+            <span>⬇️</span>
+            <span>{fr.alerts.downloadVideo}</span>
+          </button>
+        )}
+      </div>
     </div>
   )
 }

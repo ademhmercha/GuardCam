@@ -53,10 +53,13 @@ export function AlertCard({ alert, onView, onDelete }: AlertCardProps) {
         <button
           type="button"
           onClick={() => onView(alert)}
-          className="shrink-0 overflow-hidden rounded border border-text-secondary/25"
+          className="relative shrink-0 overflow-hidden rounded border border-text-secondary/25"
           aria-label={fr.alerts.view}
         >
           <img src={alert.imageData} alt="" width={80} height={60} className="h-[60px] w-[80px] object-cover" />
+          {alert.hasVideo && (
+            <span className="absolute inset-0 flex items-center justify-center bg-black/35 text-base">▶️</span>
+          )}
         </button>
       </div>
 

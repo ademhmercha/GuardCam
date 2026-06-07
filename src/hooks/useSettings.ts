@@ -8,6 +8,7 @@ const STORAGE_KEYS: Record<keyof Settings, string> = {
   sensitivity: 'sensitivity',
   soundEnabled: 'sound_enabled',
   nightVisionMode: 'night_mode',
+  recordClips: 'record_clips',
 }
 
 function readSettings(): Settings {
@@ -22,6 +23,7 @@ function readSettings(): Settings {
     sensitivity: read(STORAGE_KEYS.sensitivity, DEFAULT_SETTINGS.sensitivity) as Settings['sensitivity'],
     soundEnabled: read(STORAGE_KEYS.soundEnabled, String(DEFAULT_SETTINGS.soundEnabled)) === 'true',
     nightVisionMode: read(STORAGE_KEYS.nightVisionMode, DEFAULT_SETTINGS.nightVisionMode) as Settings['nightVisionMode'],
+    recordClips: read(STORAGE_KEYS.recordClips, String(DEFAULT_SETTINGS.recordClips)) === 'true',
   }
 }
 
@@ -41,6 +43,7 @@ export function useSettings(): UseSettingsResult {
     localStorage.setItem(STORAGE_KEYS.sensitivity, settings.sensitivity)
     localStorage.setItem(STORAGE_KEYS.soundEnabled, String(settings.soundEnabled))
     localStorage.setItem(STORAGE_KEYS.nightVisionMode, settings.nightVisionMode)
+    localStorage.setItem(STORAGE_KEYS.recordClips, String(settings.recordClips))
   }, [settings])
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {

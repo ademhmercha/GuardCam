@@ -13,11 +13,14 @@ import { usePageVisibility } from '../hooks/usePageVisibility'
 import { useBatteryLevel } from '../hooks/useBatteryLevel'
 import { NIGHT_MODES, getModeBadge, type NightModeKey } from '../data/nightModes'
 import { captureFrameAsJpeg } from '../utils/imageUtils'
+import { recordFilteredClip } from '../utils/clipRecorder'
 import { fr } from '../data/translations'
 
 interface SurveillanceScreenProps {
   settings: ReturnType<typeof useSettings>['settings']
 }
+
+const CLIP_DURATION_MS = 4000
 
 function formatElapsed(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600)
@@ -32,7 +35,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const navigate = useNavigate()
   const { videoRef, isReady } = useCamera()
   const feedRef = useRef<CameraFeedHandle | null>(null)
-  const { addAlert } = useAlertStorage()
+  const { addAlert, attachVideo } = useAlertStorage()
   const { sendAlert } = useEmailAlert(settings)
   const { playBeep } = useAudioAlert(settings.soundEnabled)
   const isVisible = usePageVisibility()
@@ -46,6 +49,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   // gap since the last detection exceeds BURST_GAP_MS.
   const burstStartRef = useRef<number | null>(null)
   const lastMotionAtRef = useRef<number>(0)
+  const isRecordingClipRef = useRef(false)
   const BURST_GAP_MS = 5000
 
   const isActive = isReady && !isPaused && isVisible
@@ -74,16 +78,28 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
       const jpeg = captureFrameAsJpeg(video, filter, 0.8)
       if (!jpeg) return
 
-      void addAlert({
+      const alertPromise = addAlert({
         location: settings.locationName,
         imageData: jpeg,
         diffPercent: event.diffPercent,
         nightMode: mode,
         type: 'motion',
         durationSeconds,
-      }).then(() => {
+      }).then((alert) => {
         setSessionAlertCount((n) => n + 1)
+        return alert
       })
+
+      // Record a short filtered clip alongside the photo — skip if one is
+      // already in flight so overlapping bursts don't pile up recordings.
+      if (settings.recordClips && !isRecordingClipRef.current) {
+        isRecordingClipRef.current = true
+        const clipPromise = recordFilteredClip(video, filter, CLIP_DURATION_MS)
+        void Promise.all([alertPromise, clipPromise]).then(([alert, clip]) => {
+          isRecordingClipRef.current = false
+          if (clip) void attachVideo(alert.id, clip.blob, clip.mimeType)
+        })
+      }
 
       void sendAlert({
         imageData: jpeg,
@@ -92,7 +108,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
         timestamp: event.timestamp,
       })
     },
-    [addAlert, mode, playBeep, sendAlert, settings.locationName]
+    [addAlert, attachVideo, mode, playBeep, sendAlert, settings.locationName, settings.recordClips]
   )
 
   const { isFlashing } = useMotionDetection({

@@ -90,6 +90,18 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
         />
       </Field>
 
+      <Field label={fr.setup.recordClipsLabel}>
+        <ToggleGroup
+          options={[
+            { value: true, label: fr.setup.recordClipsOn },
+            { value: false, label: fr.setup.recordClipsOff },
+          ]}
+          value={settings.recordClips}
+          onChange={(v) => onChange({ recordClips: v })}
+        />
+        <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.recordClipsHelp}</p>
+      </Field>
+
     </div>
   )
 }

@@ -23,6 +23,11 @@ export const fr = {
     nightVisionAuto: 'Auto',
     nightVisionForceNight: 'Forcé Nuit',
     nightVisionForceDay: 'Forcé Jour',
+    recordClipsLabel: 'Clips vidéo',
+    recordClipsOn: 'ON',
+    recordClipsOff: 'OFF',
+    recordClipsHelp:
+      'Enregistre un court clip vidéo filtré (~4 s) à chaque détection, en plus de la photo. Utilise plus de stockage local sur l’appareil.',
     startButton: '🚀 DÉMARRER LA SURVEILLANCE',
     cameraError: 'Caméra indisponible — vérifiez les permissions.',
   },
@@ -64,6 +69,9 @@ export const fr = {
     confirmDelete: 'Supprimer cette alerte ?',
     typeMotion: 'Mouvement',
     typeManual: 'Manuel',
+    videoLoading: 'Chargement du clip…',
+    videoUnavailable: 'Clip vidéo indisponible.',
+    downloadVideo: 'Télécharger le clip',
   },
 
   common: {

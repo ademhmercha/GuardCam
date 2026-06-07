@@ -14,6 +14,9 @@ export interface Alert {
   nightMode: NightModeKey
   type: AlertType
   durationSeconds: number
+  /** Set once a short video clip for this event has finished recording and was attached. */
+  hasVideo?: boolean
+  videoMimeType?: string
 }
 
 export interface Settings {
@@ -23,6 +26,7 @@ export interface Settings {
   sensitivity: SensitivityLevel
   soundEnabled: boolean
   nightVisionMode: NightVisionPreference
+  recordClips: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -32,6 +36,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sensitivity: 'medium',
   soundEnabled: true,
   nightVisionMode: 'auto',
+  recordClips: true,
 }
 
 /** Pixel-diff threshold (0-255 channel delta) per sensitivity step. */

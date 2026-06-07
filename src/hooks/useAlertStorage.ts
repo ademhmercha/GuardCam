@@ -6,7 +6,8 @@ import type { NightModeKey } from '../data/nightModes'
 
 const DB_NAME = 'guardcam_db'
 const STORE_NAME = 'alerts'
-const DB_VERSION = 1
+const VIDEO_STORE_NAME = 'videos'
+const DB_VERSION = 2
 
 interface NewAlertInput {
   location: string
@@ -17,10 +18,18 @@ interface NewAlertInput {
   durationSeconds: number
 }
 
+interface StoredVideo {
+  id: string
+  blob: Blob
+}
+
 interface UseAlertStorageResult {
   alerts: Alert[]
   isLoading: boolean
   addAlert: (input: NewAlertInput) => Promise<Alert>
+  /** Stores the recorded clip blob for an alert and flags it as having a video. */
+  attachVideo: (id: string, blob: Blob, mimeType: string) => Promise<void>
+  getVideo: (id: string) => Promise<Blob | null>
   deleteAlert: (id: string) => Promise<void>
   clearAll: () => Promise<void>
 }
@@ -32,11 +41,14 @@ function getDb(): Promise<IDBPDatabase> {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('timestamp', 'timestamp')
       }
+      if (!db.objectStoreNames.contains(VIDEO_STORE_NAME)) {
+        db.createObjectStore(VIDEO_STORE_NAME, { keyPath: 'id' })
+      }
     },
   })
 }
 
-/** CRUD wrapper around the "guardcam_db" / "alerts" IndexedDB store. */
+/** CRUD wrapper around the "guardcam_db" IndexedDB database — alert records plus their (lazily-loaded) video clips. */
 export function useAlertStorage(): UseAlertStorageResult {
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -83,10 +95,42 @@ export function useAlertStorage(): UseAlertStorageResult {
     [db]
   )
 
+  const attachVideo = useCallback(
+    async (id: string, blob: Blob, mimeType: string) => {
+      const database = await db()
+      const existing = (await database.get(STORE_NAME, id)) as Alert | undefined
+      if (!existing) return
+      const updated: Alert = { ...existing, hasVideo: true, videoMimeType: mimeType }
+      const stored: StoredVideo = { id, blob }
+      const tx = database.transaction([STORE_NAME, VIDEO_STORE_NAME], 'readwrite')
+      await Promise.all([
+        tx.objectStore(STORE_NAME).put(updated),
+        tx.objectStore(VIDEO_STORE_NAME).put(stored),
+        tx.done,
+      ])
+      setAlerts((prev) => prev.map((a) => (a.id === id ? updated : a)))
+    },
+    [db]
+  )
+
+  const getVideo = useCallback(
+    async (id: string): Promise<Blob | null> => {
+      const database = await db()
+      const stored = (await database.get(VIDEO_STORE_NAME, id)) as StoredVideo | undefined
+      return stored?.blob ?? null
+    },
+    [db]
+  )
+
   const deleteAlert = useCallback(
     async (id: string) => {
       const database = await db()
-      await database.delete(STORE_NAME, id)
+      const tx = database.transaction([STORE_NAME, VIDEO_STORE_NAME], 'readwrite')
+      await Promise.all([
+        tx.objectStore(STORE_NAME).delete(id),
+        tx.objectStore(VIDEO_STORE_NAME).delete(id),
+        tx.done,
+      ])
       setAlerts((prev) => prev.filter((a) => a.id !== id))
     },
     [db]
@@ -94,9 +138,10 @@ export function useAlertStorage(): UseAlertStorageResult {
 
   const clearAll = useCallback(async () => {
     const database = await db()
-    await database.clear(STORE_NAME)
+    const tx = database.transaction([STORE_NAME, VIDEO_STORE_NAME], 'readwrite')
+    await Promise.all([tx.objectStore(STORE_NAME).clear(), tx.objectStore(VIDEO_STORE_NAME).clear(), tx.done])
     setAlerts([])
   }, [db])
 
-  return { alerts, isLoading, addAlert, deleteAlert, clearAll }
+  return { alerts, isLoading, addAlert, attachVideo, getVideo, deleteAlert, clearAll }
 }
