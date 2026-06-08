@@ -35,6 +35,17 @@ export const fr = {
       "Identifie le sujet de chaque alerte (personne, animal, véhicule…) grâce à un modèle d'IA exécuté localement sur l'appareil — aucune image n'est envoyée en ligne.",
     startButton: 'DÉMARRER LA SURVEILLANCE',
     cameraError: 'Caméra indisponible — vérifiez les permissions.',
+    remoteViewingLabel: 'Visionnage à distance',
+    remoteViewingPinLabel: 'Code PIN',
+    remoteViewingPinPlaceholder: 'Définir un code (4 à 12 chiffres)',
+    remoteViewingPinHelp:
+      "Définissez un code PIN pour autoriser un autre appareil à regarder le flux en direct. Le visionnage est désactivé tant qu'aucun code n'est défini.",
+    remoteViewingLinkLabel: 'Lien de visionnage',
+    remoteViewingCopy: 'Copier',
+    remoteViewingCopied: 'Copié !',
+    remoteViewingHelp:
+      "Partagez ce lien avec un appareil de confiance. La connexion est directe et chiffrée de pair à pair (WebRTC) — aucune vidéo ne transite par un serveur.",
+    remoteViewingViewers: 'spectateur(s) connecté(s)',
   },
 
   surveillance: {
@@ -77,6 +88,17 @@ export const fr = {
     videoLoading: 'Chargement du clip…',
     videoUnavailable: 'Clip vidéo indisponible.',
     downloadVideo: 'Télécharger le clip',
+  },
+
+  viewer: {
+    pinPrompt: 'Entrez le code PIN pour regarder le flux en direct',
+    pinPlaceholder: '••••',
+    connect: 'Se connecter',
+    connecting: 'Connexion…',
+    wrongPin: 'Code PIN incorrect.',
+    offline: "Caméra hors ligne — vérifiez que la surveillance est active sur l'autre appareil.",
+    error: 'Erreur de connexion. Réessayez.',
+    live: 'EN DIRECT',
   },
 
   common: {

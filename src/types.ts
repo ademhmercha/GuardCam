@@ -30,6 +30,8 @@ export interface Settings {
   nightVisionMode: NightVisionPreference
   recordClips: boolean
   objectDetection: boolean
+  /** PIN required for another device to view the live feed remotely. Empty disables remote viewing. */
+  viewingPin: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   nightVisionMode: 'auto',
   recordClips: true,
   objectDetection: true,
+  viewingPin: '',
 }
 
 /** Pixel-diff threshold (0-255 channel delta) per sensitivity step. */

@@ -10,6 +10,7 @@ import {
   Play,
   Pause,
   Square,
+  RadioTower,
   type LucideIcon,
 } from 'lucide-react'
 import { CameraFeed, type CameraFeedHandle } from '../components/CameraFeed'
@@ -24,6 +25,8 @@ import { useAudioAlert } from '../hooks/useAudioAlert'
 import { useSettings } from '../hooks/useSettings'
 import { usePageVisibility } from '../hooks/usePageVisibility'
 import { useBatteryLevel } from '../hooks/useBatteryLevel'
+import { usePeerId } from '../hooks/usePeerId'
+import { useRemoteViewing } from '../hooks/useRemoteViewing'
 import { NIGHT_MODES, getModeBadge, type NightModeKey } from '../data/nightModes'
 import { captureFrameAsJpeg } from '../utils/imageUtils'
 import { recordFilteredClip } from '../utils/clipRecorder'
@@ -54,6 +57,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const { playBeep } = useAudioAlert(settings.soundEnabled)
   const isVisible = usePageVisibility()
   const batteryLevel = useBatteryLevel()
+  const peerId = usePeerId()
 
   const [isPaused, setIsPaused] = useState(false)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
@@ -69,6 +73,16 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const isActive = isReady && !isPaused && isVisible
 
   const getFrame = useCallback(() => feedRef.current?.getFrame() ?? null, [])
+  const getCameraStream = useCallback(
+    () => (feedRef.current?.videoElement()?.srcObject as MediaStream | null) ?? null,
+    []
+  )
+  const { viewerCount } = useRemoteViewing({
+    peerId,
+    pin: settings.viewingPin,
+    getStream: getCameraStream,
+    enabled: isReady,
+  })
 
   const { mode, brightness, setManualMode } = useNightVision({
     preference: settings.nightVisionMode,
@@ -201,9 +215,17 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
           <span className="text-sm font-bold tracking-wider text-alert">{fr.surveillance.statusActive}</span>
         </div>
         <div className="font-mono text-lg tracking-widest text-accent">{formatElapsed(elapsedSeconds)}</div>
-        <div className="flex items-center gap-1.5 text-sm text-text-secondary">
-          <Camera size={15} strokeWidth={1.75} />
-          <span className="text-text-primary">{sessionAlertCount}</span>
+        <div className="flex items-center gap-3 text-sm text-text-secondary">
+          {viewerCount > 0 && (
+            <span className="flex items-center gap-1.5 text-accent" title={fr.setup.remoteViewingViewers}>
+              <RadioTower size={15} strokeWidth={1.75} />
+              <span>{viewerCount}</span>
+            </span>
+          )}
+          <span className="flex items-center gap-1.5">
+            <Camera size={15} strokeWidth={1.75} />
+            <span className="text-text-primary">{sessionAlertCount}</span>
+          </span>
         </div>
       </div>
 

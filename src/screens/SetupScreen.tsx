@@ -5,6 +5,7 @@ import { CameraFeed, type CameraFeedHandle } from '../components/CameraFeed'
 import { SettingsForm } from '../components/SettingsForm'
 import { useCamera } from '../hooks/useCamera'
 import { useSettings } from '../hooks/useSettings'
+import { usePeerId } from '../hooks/usePeerId'
 import { NIGHT_MODES, AUTO_MODE_ORDER } from '../data/nightModes'
 import { averageBrightness } from '../utils/brightnessDetector'
 import { fr } from '../data/translations'
@@ -31,6 +32,7 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
   const { videoRef, isReady, error, switchCamera, canSwitchCamera } = useCamera()
   const feedRef = useRef<CameraFeedHandle | null>(null)
   const [brightness, setBrightness] = useState(128)
+  const peerId = usePeerId()
 
   const getFrame = useCallback(() => feedRef.current?.getFrame() ?? null, [])
 
@@ -90,7 +92,7 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
       </section>
 
       <section className="mt-6 flex-1 px-5">
-        <SettingsForm settings={settings} onChange={updateSettings} />
+        <SettingsForm settings={settings} onChange={updateSettings} peerId={peerId} />
       </section>
 
       <section className="px-5 pt-6">

@@ -1,9 +1,13 @@
+import { useState } from 'react'
+import { Copy, Check } from 'lucide-react'
 import { fr } from '../data/translations'
 import { SENSITIVITY_STEPS, type Settings } from '../types'
 
 interface SettingsFormProps {
   settings: Settings
   onChange: (patch: Partial<Settings>) => void
+  /** This device's stable peer identifier — used to build the remote-viewing share link. */
+  peerId: string
 }
 
 const SENSITIVITY_LABELS: Record<Settings['sensitivity'], string> = {
@@ -13,8 +17,17 @@ const SENSITIVITY_LABELS: Record<Settings['sensitivity'], string> = {
 }
 
 /** Settings form shared by the setup screen and the in-surveillance config tab. */
-export function SettingsForm({ settings, onChange }: SettingsFormProps) {
+export function SettingsForm({ settings, onChange, peerId }: SettingsFormProps) {
   const sensitivityIndex = SENSITIVITY_STEPS.indexOf(settings.sensitivity)
+  const [copied, setCopied] = useState(false)
+  const shareLink = `${window.location.origin}/regarder/${peerId}`
+
+  const handleCopyLink = () => {
+    void navigator.clipboard.writeText(shareLink).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   return (
     <div className="space-y-5">
@@ -112,6 +125,38 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
           onChange={(v) => onChange({ objectDetection: v })}
         />
         <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.objectDetectionHelp}</p>
+      </Field>
+
+      <Field label={fr.setup.remoteViewingLabel}>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={settings.viewingPin}
+          onChange={(e) => onChange({ viewingPin: e.target.value.replace(/\D/g, '').slice(0, 12) })}
+          placeholder={fr.setup.remoteViewingPinPlaceholder}
+          className="input-field tracking-[0.3em]"
+        />
+        <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.remoteViewingPinHelp}</p>
+
+        {settings.viewingPin.trim().length > 0 && (
+          <div className="mt-3">
+            <span className="mb-2 block text-xs uppercase tracking-wider text-text-secondary">
+              {fr.setup.remoteViewingLinkLabel}
+            </span>
+            <div className="flex items-center gap-2">
+              <input type="text" readOnly value={shareLink} className="input-field truncate text-xs" />
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="flex min-h-12 shrink-0 items-center gap-1.5 rounded-md border border-text-secondary/30 bg-card px-3 text-xs text-text-secondary transition-colors duration-300 hover:border-accent/50 hover:text-accent"
+              >
+                {copied ? <Check size={14} strokeWidth={1.75} /> : <Copy size={14} strokeWidth={1.75} />}
+                <span>{copied ? fr.setup.remoteViewingCopied : fr.setup.remoteViewingCopy}</span>
+              </button>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.remoteViewingHelp}</p>
+          </div>
+        )}
       </Field>
 
     </div>

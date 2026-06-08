@@ -10,6 +10,7 @@ const STORAGE_KEYS: Record<keyof Settings, string> = {
   nightVisionMode: 'night_mode',
   recordClips: 'record_clips',
   objectDetection: 'object_detection',
+  viewingPin: 'viewing_pin',
 }
 
 function readSettings(): Settings {
@@ -26,6 +27,7 @@ function readSettings(): Settings {
     nightVisionMode: read(STORAGE_KEYS.nightVisionMode, DEFAULT_SETTINGS.nightVisionMode) as Settings['nightVisionMode'],
     recordClips: read(STORAGE_KEYS.recordClips, String(DEFAULT_SETTINGS.recordClips)) === 'true',
     objectDetection: read(STORAGE_KEYS.objectDetection, String(DEFAULT_SETTINGS.objectDetection)) === 'true',
+    viewingPin: read(STORAGE_KEYS.viewingPin, DEFAULT_SETTINGS.viewingPin),
   }
 }
 
@@ -47,6 +49,7 @@ export function useSettings(): UseSettingsResult {
     localStorage.setItem(STORAGE_KEYS.nightVisionMode, settings.nightVisionMode)
     localStorage.setItem(STORAGE_KEYS.recordClips, String(settings.recordClips))
     localStorage.setItem(STORAGE_KEYS.objectDetection, String(settings.objectDetection))
+    localStorage.setItem(STORAGE_KEYS.viewingPin, settings.viewingPin)
   }, [settings])
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
