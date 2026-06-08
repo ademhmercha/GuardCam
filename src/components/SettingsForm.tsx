@@ -58,7 +58,7 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
           step={1}
           value={sensitivityIndex}
           onChange={(e) => onChange({ sensitivity: SENSITIVITY_STEPS[Number(e.target.value)] })}
-          className="w-full accent-matrix"
+          className="w-full accent-accent"
         />
         <div className="mt-1 flex justify-between text-xs text-text-secondary">
           <span>{fr.setup.sensitivityLow}</span>
@@ -133,7 +133,7 @@ function ToggleGroup<T extends string | boolean>({ options, value, onChange }: T
             onClick={() => onChange(opt.value)}
             className={`min-h-12 rounded-md border px-2 text-sm transition-all duration-300 ${
               isActive
-                ? 'glow-border bg-matrix/10 text-matrix'
+                ? 'glow-border bg-accent/10 text-accent'
                 : 'border-text-secondary/25 bg-card text-text-secondary hover:border-text-secondary/50'
             }`}
           >

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ShieldCheck, RefreshCw, MoonStar, CloudMoon, Sun, type LucideIcon } from 'lucide-react'
 import { CameraFeed, type CameraFeedHandle } from '../components/CameraFeed'
 import { SettingsForm } from '../components/SettingsForm'
 import { useCamera } from '../hooks/useCamera'
@@ -8,15 +9,15 @@ import { NIGHT_MODES, AUTO_MODE_ORDER } from '../data/nightModes'
 import { averageBrightness } from '../utils/brightnessDetector'
 import { fr } from '../data/translations'
 
-const PREVIEW_BADGES = [
-  { max: 60, emoji: '🟢', label: 'Très sombre' },
-  { max: 150, emoji: '🌙', label: 'Nuit' },
-  { max: Infinity, emoji: '☀️', label: 'Jour' },
+const PREVIEW_BADGES: { max: number; icon: LucideIcon; label: string }[] = [
+  { max: 60, icon: MoonStar, label: 'Très sombre' },
+  { max: 150, icon: CloudMoon, label: 'Nuit' },
+  { max: Infinity, icon: Sun, label: 'Jour' },
 ]
 
-function previewBadge(brightness: number): string {
+function previewBadge(brightness: number): { icon: LucideIcon; label: string } {
   const match = PREVIEW_BADGES.find((b) => brightness <= b.max) ?? PREVIEW_BADGES[PREVIEW_BADGES.length - 1]
-  return `${match.emoji} ${match.label}`
+  return { icon: match.icon, label: match.label }
 }
 
 interface SetupScreenProps {
@@ -60,8 +61,9 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
   return (
     <div className="mx-auto flex min-h-full max-w-2xl flex-col pb-28">
       <header className="px-5 pt-8 pb-4 text-center">
-        <h1 className="text-3xl tracking-widest text-matrix drop-shadow-[0_0_10px_rgba(0,255,65,0.5)]">
-          🔒 {fr.appName}
+        <h1 className="flex items-center justify-center gap-2.5 text-3xl tracking-widest text-accent">
+          <ShieldCheck size={28} strokeWidth={1.75} />
+          <span>{fr.appName}</span>
         </h1>
         <p className="mt-1 text-xs text-text-secondary">{fr.tagline}</p>
       </header>
@@ -79,9 +81,9 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
           <button
             type="button"
             onClick={() => void switchCamera()}
-            className="mx-auto mt-3 flex min-h-12 items-center gap-2 rounded-md border border-text-secondary/30 px-4 text-sm text-text-secondary transition-colors duration-300 hover:border-matrix/50 hover:text-matrix"
+            className="mx-auto mt-3 flex min-h-12 items-center gap-2 rounded-md border border-text-secondary/30 px-4 text-sm text-text-secondary transition-colors duration-300 hover:border-accent/50 hover:text-accent"
           >
-            <span>🔄</span>
+            <RefreshCw size={15} strokeWidth={1.75} />
             <span>{fr.setup.cameraToggle}</span>
           </button>
         )}
@@ -95,7 +97,7 @@ export function SetupScreen({ settings, updateSettings }: SetupScreenProps) {
         <button
           type="button"
           onClick={() => navigate('/surveillance')}
-          className="glow-border min-h-14 w-full rounded-lg bg-matrix/10 text-base font-bold tracking-wide text-matrix transition-transform duration-300 active:scale-[0.98]"
+          className="glow-border min-h-14 w-full rounded-lg bg-accent/10 text-base font-bold tracking-wide text-accent transition-transform duration-300 active:scale-[0.98]"
         >
           {fr.setup.startButton}
         </button>

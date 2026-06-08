@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
+import type { LucideIcon } from 'lucide-react'
 import { sampleVideoFrame } from '../utils/canvasUtils'
 
 export interface CameraFeedHandle {
@@ -13,16 +14,14 @@ interface CameraFeedProps {
   filter: string
   /** Flash the border red briefly when motion is detected. */
   isFlashing?: boolean
-  /** Small badge rendered over the bottom-left of the feed (e.g. "🌙 Nuit"). */
-  modeBadge?: string
-  /** Extra badge rendered top-right (e.g. day/night mode in setup screen). */
-  topBadge?: string
+  /** Small badge rendered over the bottom-left of the feed (e.g. the active night-vision mode). */
+  modeBadge?: { icon: LucideIcon; label: string }
   className?: string
 }
 
 /** Live camera feed (video element) with night-vision CSS filter, scanline overlay and a hidden analysis canvas. */
 export const CameraFeed = forwardRef<CameraFeedHandle, CameraFeedProps>(function CameraFeed(
-  { videoRef, filter, isFlashing = false, modeBadge, topBadge, className = '' },
+  { videoRef, filter, isFlashing = false, modeBadge, className = '' },
   ref
 ) {
   const analysisCanvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -58,14 +57,9 @@ export const CameraFeed = forwardRef<CameraFeedHandle, CameraFeedProps>(function
       <canvas ref={analysisCanvasRef} className="hidden" aria-hidden="true" />
 
       {modeBadge && (
-        <div className="absolute bottom-3 left-3 z-10 rounded-md border border-matrix/40 bg-black/60 px-3 py-1 text-xs tracking-wide text-matrix backdrop-blur-sm">
-          {modeBadge}
-        </div>
-      )}
-
-      {topBadge && (
-        <div className="absolute top-3 right-3 z-10 rounded-md border border-text-secondary/30 bg-black/60 px-3 py-1 text-xs text-text-primary backdrop-blur-sm">
-          {topBadge}
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-md border border-accent/40 bg-black/60 px-3 py-1 text-xs tracking-wide text-accent backdrop-blur-sm">
+          <modeBadge.icon size={14} strokeWidth={1.75} />
+          <span>{modeBadge.label}</span>
         </div>
       )}
     </div>

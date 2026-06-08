@@ -3,12 +3,12 @@
 @theme {
   --font-mono: 'Share Tech Mono', ui-monospace, monospace;
 
-  --color-bg: #0a0a0f;
-  --color-card: #0d1117;
-  --color-matrix: #00ff41;
-  --color-alert: #ff3333;
-  --color-text-primary: #e2e8f0;
-  --color-text-secondary: #64748b;
+  --color-bg: #0a0d12;
+  --color-card: #131822;
+  --color-accent: #4f9ef0;
+  --color-alert: #e5484d;
+  --color-text-primary: #e6eaf0;
+  --color-text-secondary: #7c8aa0;
 }
 
 html,
@@ -30,47 +30,29 @@ body {
   box-sizing: border-box;
 }
 
-/* Scanline overlay for camera feed aesthetic */
-.scanlines::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 255, 65, 0.04) 0px,
-    rgba(0, 255, 65, 0.04) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  mix-blend-mode: overlay;
-  z-index: 5;
-}
-
+/* Subtle vignette overlay for the camera feed — keeps focus on the frame */
 .scanlines::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
   z-index: 6;
 }
 
-/* Glowing border for active elements */
+/* Crisp accent border for active/focused elements */
 .glow-border {
-  border: 1px solid var(--color-matrix);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
   box-shadow:
-    0 0 8px rgba(0, 255, 65, 0.6),
-    0 0 24px rgba(0, 255, 65, 0.25),
-    inset 0 0 12px rgba(0, 255, 65, 0.08);
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 4px 20px -4px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .glow-border-alert {
-  border: 1px solid var(--color-alert);
+  border: 1px solid color-mix(in srgb, var(--color-alert) 70%, transparent);
   box-shadow:
-    0 0 8px rgba(255, 51, 51, 0.7),
-    0 0 28px rgba(255, 51, 51, 0.35),
-    inset 0 0 12px rgba(255, 51, 51, 0.1);
+    0 0 0 1px color-mix(in srgb, var(--color-alert) 18%, transparent),
+    0 4px 20px -4px color-mix(in srgb, var(--color-alert) 40%, transparent);
 }
 
 /* Radar pulse animation for surveillance indicator */
@@ -115,12 +97,12 @@ body {
 @keyframes flash-border {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 51, 51, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-alert) 0%, transparent);
   }
   30% {
     box-shadow:
-      0 0 0 4px rgba(255, 51, 51, 0.9),
-      0 0 40px rgba(255, 51, 51, 0.6);
+      0 0 0 3px color-mix(in srgb, var(--color-alert) 80%, transparent),
+      0 0 28px color-mix(in srgb, var(--color-alert) 45%, transparent);
   }
 }
 
@@ -152,7 +134,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 65, 0.25);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
   border-radius: 9999px;
 }
 
@@ -183,6 +165,6 @@ body {
 }
 
 .input-field:focus {
-  border-color: var(--color-matrix);
-  box-shadow: 0 0 0 1px rgba(0, 255, 65, 0.3), 0 0 12px rgba(0, 255, 65, 0.2);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
 }

@@ -28,7 +28,7 @@ export const fr = {
     recordClipsOff: 'OFF',
     recordClipsHelp:
       'Enregistre un court clip vidéo filtré (~4 s) à chaque détection, en plus de la photo. Utilise plus de stockage local sur l’appareil.',
-    startButton: '🚀 DÉMARRER LA SURVEILLANCE',
+    startButton: 'DÉMARRER LA SURVEILLANCE',
     cameraError: 'Caméra indisponible — vérifiez les permissions.',
   },
 

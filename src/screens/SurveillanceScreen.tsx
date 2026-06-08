@@ -1,5 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  Camera,
+  BatteryWarning,
+  Eye,
+  Timer,
+  MapPin,
+  Gauge,
+  Play,
+  Pause,
+  Square,
+  type LucideIcon,
+} from 'lucide-react'
 import { CameraFeed, type CameraFeedHandle } from '../components/CameraFeed'
 import { NightVisionFilter } from '../components/NightVisionFilter'
 import { useCamera } from '../hooks/useCamera'
@@ -158,7 +170,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   return (
     <div className="mx-auto flex min-h-full max-w-2xl flex-col pb-40">
       {/* Top status bar */}
-      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-matrix/15 bg-bg/90 px-4 py-3 backdrop-blur-md">
+      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-accent/15 bg-bg/90 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span className="relative flex h-3 w-3">
             <span className="radar-pulse" />
@@ -166,15 +178,17 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
           </span>
           <span className="text-sm font-bold tracking-wider text-alert">{fr.surveillance.statusActive}</span>
         </div>
-        <div className="font-mono text-lg tracking-widest text-matrix">{formatElapsed(elapsedSeconds)}</div>
-        <div className="text-sm text-text-secondary">
-          📸 <span className="text-text-primary">{sessionAlertCount}</span>
+        <div className="font-mono text-lg tracking-widest text-accent">{formatElapsed(elapsedSeconds)}</div>
+        <div className="flex items-center gap-1.5 text-sm text-text-secondary">
+          <Camera size={15} strokeWidth={1.75} />
+          <span className="text-text-primary">{sessionAlertCount}</span>
         </div>
       </div>
 
       {batteryLevel !== null && batteryLevel < 0.2 && (
-        <div className="mx-4 mt-3 rounded-md border border-alert/30 bg-alert/10 px-3 py-2 text-center text-xs text-alert">
-          🔋 {fr.surveillance.batteryLow} — {Math.round(batteryLevel * 100)}%
+        <div className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-md border border-alert/30 bg-alert/10 px-3 py-2 text-center text-xs text-alert">
+          <BatteryWarning size={14} strokeWidth={1.75} />
+          <span>{fr.surveillance.batteryLow} — {Math.round(batteryLevel * 100)}%</span>
         </div>
       )}
 
@@ -195,37 +209,37 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
 
       {/* Stats row */}
       <section className="grid grid-cols-2 gap-3 px-4 pb-4 sm:grid-cols-4">
-        <StatTile emoji="👁" label={fr.surveillance.statActive} value={isPaused ? '—' : 'ON'} />
-        <StatTile emoji="⏱" label="Temps" value={formatElapsed(elapsedSeconds)} />
-        <StatTile emoji="📍" label={fr.surveillance.statLocation} value={settings.locationName} />
-        <StatTile emoji="🌡" label={fr.surveillance.statBrightness} value={`${brightnessPercent}%`} />
+        <StatTile icon={Eye} label={fr.surveillance.statActive} value={isPaused ? '—' : 'ON'} />
+        <StatTile icon={Timer} label="Temps" value={formatElapsed(elapsedSeconds)} />
+        <StatTile icon={MapPin} label={fr.surveillance.statLocation} value={settings.locationName} />
+        <StatTile icon={Gauge} label={fr.surveillance.statBrightness} value={`${brightnessPercent}%`} />
       </section>
 
       {/* Action buttons */}
       <section className="grid grid-cols-3 gap-3 px-4 pb-4">
         <ActionButton
-          emoji={isPaused ? '▶️' : '⏸'}
+          icon={isPaused ? Play : Pause}
           label={isPaused ? fr.surveillance.resume : fr.surveillance.pause}
           onClick={() => setIsPaused((p) => !p)}
         />
-        <ActionButton emoji="📸" label={fr.surveillance.capture} onClick={handleCapture} accent />
-        <ActionButton emoji="⛔" label={fr.surveillance.stop} onClick={handleStop} danger />
+        <ActionButton icon={Camera} label={fr.surveillance.capture} onClick={handleCapture} accent />
+        <ActionButton icon={Square} label={fr.surveillance.stop} onClick={handleStop} danger />
       </section>
     </div>
   )
 }
 
 interface StatTileProps {
-  emoji: string
+  icon: LucideIcon
   label: string
   value: string
 }
 
-function StatTile({ emoji, label, value }: StatTileProps) {
+function StatTile({ icon: Icon, label, value }: StatTileProps) {
   return (
     <div className="rounded-lg border border-text-secondary/20 bg-card px-3 py-2">
       <p className="flex items-center gap-1.5 text-xs text-text-secondary">
-        <span>{emoji}</span>
+        <Icon size={13} strokeWidth={1.75} />
         <span className="truncate">{label}</span>
       </p>
       <p className="mt-1 truncate text-sm text-text-primary">{value}</p>
@@ -234,18 +248,18 @@ function StatTile({ emoji, label, value }: StatTileProps) {
 }
 
 interface ActionButtonProps {
-  emoji: string
+  icon: LucideIcon
   label: string
   onClick: () => void
   accent?: boolean
   danger?: boolean
 }
 
-function ActionButton({ emoji, label, onClick, accent, danger }: ActionButtonProps) {
+function ActionButton({ icon: Icon, label, onClick, accent, danger }: ActionButtonProps) {
   const styles = danger
     ? 'border-alert/40 bg-alert/10 text-alert'
     : accent
-      ? 'glow-border bg-matrix/10 text-matrix'
+      ? 'glow-border bg-accent/10 text-accent'
       : 'border-text-secondary/30 bg-card text-text-secondary'
 
   return (
@@ -254,7 +268,7 @@ function ActionButton({ emoji, label, onClick, accent, danger }: ActionButtonPro
       onClick={onClick}
       className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg border text-xs transition-transform duration-300 active:scale-[0.96] ${styles}`}
     >
-      <span className="text-lg leading-none">{emoji}</span>
+      <Icon size={19} strokeWidth={1.75} />
       <span className="tracking-wide">{label}</span>
     </button>
   )

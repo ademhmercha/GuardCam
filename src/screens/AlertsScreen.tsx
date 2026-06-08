@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { History, Download, Trash2 } from 'lucide-react'
 import { AlertCard } from '../components/AlertCard'
 import { useAlertStorage } from '../hooks/useAlertStorage'
 import { downloadDataUrl, formatTimestampForFilename } from '../utils/imageUtils'
@@ -55,8 +56,9 @@ export function AlertsScreen() {
   return (
     <div className="mx-auto flex min-h-full max-w-2xl flex-col pb-28">
       <header className="px-4 pt-6 pb-3">
-        <h1 className="text-lg text-matrix">
-          📋 {fr.alerts.headerToday} ({todayAlerts.length})
+        <h1 className="flex items-center gap-2 text-lg text-accent">
+          <History size={18} strokeWidth={1.75} />
+          <span>{fr.alerts.headerToday} ({todayAlerts.length})</span>
         </h1>
       </header>
 
@@ -68,7 +70,7 @@ export function AlertsScreen() {
             onClick={() => setFilter(f.key)}
             className={`min-h-12 flex-1 rounded-md border text-sm transition-all duration-300 ${
               filter === f.key
-                ? 'glow-border bg-matrix/10 text-matrix'
+                ? 'glow-border bg-accent/10 text-accent'
                 : 'border-text-secondary/25 bg-card text-text-secondary'
             }`}
           >
@@ -91,9 +93,9 @@ export function AlertsScreen() {
           <button
             type="button"
             onClick={handleDownloadAll}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-matrix/30 text-sm text-matrix transition-colors duration-300 hover:bg-matrix/10"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-accent/30 text-sm text-accent transition-colors duration-300 hover:bg-accent/10"
           >
-            <span>⬇️</span>
+            <Download size={16} strokeWidth={1.75} />
             <span>{fr.alerts.downloadAll}</span>
           </button>
           <button
@@ -101,7 +103,7 @@ export function AlertsScreen() {
             onClick={handleClearAll}
             className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-alert/30 text-sm text-alert transition-colors duration-300 hover:bg-alert/10"
           >
-            <span>🗑</span>
+            <Trash2 size={16} strokeWidth={1.75} />
             <span>{fr.alerts.clearHistory}</span>
           </button>
         </section>
@@ -197,9 +199,9 @@ function AlertViewer({ alert, getVideo, onClose }: AlertViewerProps) {
           <button
             type="button"
             onClick={handleDownloadVideo}
-            className="flex min-h-12 items-center gap-2 rounded-md border border-matrix/30 px-4 text-sm text-matrix transition-colors duration-300 hover:bg-matrix/10"
+            className="flex min-h-12 items-center gap-2 rounded-md border border-accent/30 px-4 text-sm text-accent transition-colors duration-300 hover:bg-accent/10"
           >
-            <span>⬇️</span>
+            <Download size={16} strokeWidth={1.75} />
             <span>{fr.alerts.downloadVideo}</span>
           </button>
         )}

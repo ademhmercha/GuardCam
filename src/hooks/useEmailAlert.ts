@@ -35,13 +35,13 @@ function buildFormData(settings: Settings, input: SendAlertInput, photoBlob: Blo
   formData.append('from_name', 'GuardCam')
   formData.append('email', email)
   formData.append('replyto', email)
-  formData.append('subject', `🚨 ALERTE GUARDCAM — ${input.location}`)
+  formData.append('subject', `Alerte GuardCam — ${input.location}`)
   formData.append(
     'message',
-    `🚨 Mouvement détecté !\n` +
-      `📍 Emplacement : ${input.location}\n` +
-      `🕐 Heure : ${formatDateTime(input.timestamp)}\n` +
-      `📊 Différence détectée : ${input.diffPercent.toFixed(1)}%\n\n` +
+    `Mouvement détecté\n` +
+      `Emplacement : ${input.location}\n` +
+      `Heure : ${formatDateTime(input.timestamp)}\n` +
+      `Différence détectée : ${input.diffPercent.toFixed(1)}%\n\n` +
       (photoBlob
         ? `Photo capturée automatiquement en pièce jointe.`
         : `Photo non jointe à cet email — consultez l'historique des alertes dans l'application pour la voir.`)
