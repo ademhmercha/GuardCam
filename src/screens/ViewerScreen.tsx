@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Peer, type MediaConnection, PeerErrorType } from 'peerjs'
 import { ShieldCheck, Lock, Loader2, WifiOff, TriangleAlert, RadioTower } from 'lucide-react'
 import { fr } from '../data/translations'
 
 type Status = 'enter-pin' | 'connecting' | 'live' | 'wrong-pin' | 'offline' | 'error'
+
+const RECONNECT_DELAY_MS = 4000
 
 interface PinAckMessage {
   type: 'pin-ok' | 'pin-error'
@@ -23,6 +25,9 @@ export function ViewerScreen() {
   const [stream, setStream] = useState<MediaStream | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const peerRef = useRef<Peer | null>(null)
+  const pinRef = useRef(pin)
+  pinRef.current = pin
+  const everLiveRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -34,9 +39,9 @@ export function ViewerScreen() {
     if (videoRef.current && stream) videoRef.current.srcObject = stream
   }, [stream])
 
-  const handleConnect = () => {
-    if (!peerId || !pin.trim() || status === 'connecting') return
-    setStatus('connecting')
+  const connect = useCallback(() => {
+    if (!peerId || !pinRef.current.trim()) return
+    setStatus((prev) => (prev === 'live' ? 'offline' : 'connecting'))
     setStream(null)
 
     peerRef.current?.destroy()
@@ -46,16 +51,18 @@ export function ViewerScreen() {
     const handleCall = (call: MediaConnection) => {
       call.answer()
       call.on('stream', (remoteStream) => {
+        everLiveRef.current = true
         setStream(remoteStream)
         setStatus('live')
       })
       call.on('close', () => setStatus('offline'))
-      call.on('error', () => setStatus('error'))
+      call.on('error', () => setStatus('offline'))
     }
 
     const handlePinAck = (data: unknown) => {
       if (!isPinAckMessage(data)) return
       if (data.type === 'pin-error') {
+        everLiveRef.current = false
         setStatus('wrong-pin')
         peer.destroy()
       }
@@ -65,9 +72,10 @@ export function ViewerScreen() {
 
     peer.on('open', () => {
       const conn = peer.connect(peerId)
-      conn.on('open', () => conn.send({ type: 'pin', pin }))
+      conn.on('open', () => conn.send({ type: 'pin', pin: pinRef.current }))
       conn.on('data', handlePinAck)
       conn.on('error', () => setStatus('offline'))
+      conn.on('close', () => setStatus('offline'))
     })
 
     peer.on('call', handleCall)
@@ -75,7 +83,24 @@ export function ViewerScreen() {
     peer.on('error', (err) => {
       setStatus(err.type === PeerErrorType.PeerUnavailable ? 'offline' : 'error')
     })
+  }, [peerId])
+
+  // The camera goes online and offline as the owner starts/pauses/stops
+  // surveillance — keep retrying in the background so the feed reappears
+  // automatically the moment the host comes back, without the viewer having
+  // to re-enter the PIN.
+  useEffect(() => {
+    if (status !== 'offline') return
+    const timer = setTimeout(connect, RECONNECT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [status, connect])
+
+  const handleConnect = () => {
+    if (status === 'connecting') return
+    connect()
   }
+
+  const isReconnecting = status === 'offline' && everLiveRef.current
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 px-5 py-10">
@@ -133,8 +158,12 @@ export function ViewerScreen() {
           )}
           {status === 'offline' && (
             <p className="flex items-center gap-1.5 text-xs text-alert">
-              <WifiOff size={13} strokeWidth={1.75} />
-              <span>{fr.viewer.offline}</span>
+              {isReconnecting ? (
+                <Loader2 size={13} strokeWidth={1.75} className="animate-spin" />
+              ) : (
+                <WifiOff size={13} strokeWidth={1.75} />
+              )}
+              <span>{isReconnecting ? fr.viewer.reconnecting : fr.viewer.offline}</span>
             </p>
           )}
           {status === 'error' && (

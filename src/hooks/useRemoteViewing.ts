@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Peer, type DataConnection } from 'peerjs'
+import { Peer, type DataConnection, type MediaConnection } from 'peerjs'
+
+const STREAM_WATCH_INTERVAL_MS = 3000
 
 interface PinMessage {
   type: 'pin'
@@ -45,13 +47,28 @@ export function useRemoteViewing({ peerId, pin, getStream, enabled }: UseRemoteV
     }
 
     const verified = new Set<string>()
+    // Tracks the live MediaConnection per viewer so calls can be re-placed
+    // with a fresh stream if the camera stream is swapped (e.g. switching
+    // between front/back camera) — otherwise viewers would freeze on the
+    // old, now-stopped tracks.
+    const calls = new Map<string, MediaConnection>()
+    let currentStreamId: string | null = null
+
     const updateCount = () => setViewerCount(verified.size)
     const forget = (viewerId: string) => {
       verified.delete(viewerId)
+      calls.delete(viewerId)
       updateCount()
     }
 
     const peer = new Peer(peerId)
+
+    const placeCall = (viewerId: string, stream: MediaStream) => {
+      calls.get(viewerId)?.close()
+      const call = peer.call(viewerId, stream)
+      calls.set(viewerId, call)
+      call.on('close', () => forget(viewerId))
+    }
 
     const acceptViewer = (conn: DataConnection) => {
       verified.add(conn.peer)
@@ -59,9 +76,7 @@ export function useRemoteViewing({ peerId, pin, getStream, enabled }: UseRemoteV
       conn.send({ type: 'pin-ok' })
 
       const stream = getStreamRef.current()
-      if (!stream) return
-      const call = peer.call(conn.peer, stream)
-      call.on('close', () => forget(conn.peer))
+      if (stream) placeCall(conn.peer, stream)
     }
 
     const handleData = (conn: DataConnection, data: unknown) => {
@@ -81,9 +96,22 @@ export function useRemoteViewing({ peerId, pin, getStream, enabled }: UseRemoteV
     peer.on('connection', handleConnection)
     peer.on('error', (err) => console.error('GuardCam: erreur de visionnage à distance', err))
 
+    // Re-place calls for everyone already watching whenever the underlying
+    // camera stream is replaced, so remote viewers stay in sync with the host.
+    const streamWatcher = setInterval(() => {
+      const stream = getStreamRef.current()
+      if (!stream || stream.id === currentStreamId) return
+      currentStreamId = stream.id
+      if (calls.size === 0) return
+      for (const viewerId of verified) placeCall(viewerId, stream)
+    }, STREAM_WATCH_INTERVAL_MS)
+
     return () => {
+      clearInterval(streamWatcher)
+      for (const call of calls.values()) call.close()
       peer.destroy()
       verified.clear()
+      calls.clear()
       setViewerCount(0)
     }
   }, [enabled, peerId, pin])

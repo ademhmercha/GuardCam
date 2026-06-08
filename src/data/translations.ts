@@ -97,6 +97,7 @@ export const fr = {
     connecting: 'Connexion…',
     wrongPin: 'Code PIN incorrect.',
     offline: "Caméra hors ligne — vérifiez que la surveillance est active sur l'autre appareil.",
+    reconnecting: 'Reconnexion automatique en cours…',
     error: 'Erreur de connexion. Réessayez.',
     live: 'EN DIRECT',
   },

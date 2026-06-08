@@ -15,6 +15,8 @@ interface SendAlertInput {
 interface UseEmailAlertResult {
   /** Sends an email alert (with the captured photo attached) automatically via Web3Forms, respecting the 30s anti-spam cooldown. */
   sendAlert: (input: SendAlertInput) => Promise<{ sent: boolean; reason?: string }>
+  /** Emails the remote-viewing share link (and PIN) once when surveillance starts, so it's always within reach on another device. */
+  sendShareLink: (link: string) => Promise<{ sent: boolean; reason?: string }>
 }
 
 function formatDateTime(timestamp: number): string {
@@ -49,6 +51,26 @@ function buildFormData(settings: Settings, input: SendAlertInput, photoBlob: Blo
   if (photoBlob) {
     formData.append('attachment', photoBlob, `guardcam-${formatTimestampForFilename(new Date(input.timestamp))}.jpg`)
   }
+  return formData
+}
+
+function buildShareLinkFormData(settings: Settings, link: string): FormData {
+  const email = settings.notificationEmail.trim()
+
+  const formData = new FormData()
+  formData.append('access_key', settings.emailApiKey.trim())
+  formData.append('name', 'GuardCam')
+  formData.append('from_name', 'GuardCam')
+  formData.append('email', email)
+  formData.append('replyto', email)
+  formData.append('subject', `GuardCam — Lien de visionnage en direct (${settings.locationName})`)
+  formData.append(
+    'message',
+    `La surveillance vient de démarrer sur « ${settings.locationName} ».\n\n` +
+      `Regardez le flux en direct depuis un autre appareil :\n${link}\n\n` +
+      `Code PIN à saisir : ${settings.viewingPin}\n\n` +
+      `La connexion est directe et chiffrée de pair à pair (WebRTC) — aucune vidéo ne transite par un serveur.`
+  )
   return formData
 }
 
@@ -106,5 +128,33 @@ export function useEmailAlert(settings: Settings): UseEmailAlertResult {
     [settings.emailApiKey, settings.notificationEmail]
   )
 
-  return { sendAlert }
+  const sentLinkRef = useRef(false)
+
+  const sendShareLink = useCallback(
+    async (link: string): Promise<{ sent: boolean; reason?: string }> => {
+      if (!settings.emailApiKey.trim() || !settings.notificationEmail.trim() || !settings.viewingPin.trim()) {
+        return { sent: false, reason: 'no-config' }
+      }
+
+      // One email per surveillance session — re-sending on every render or
+      // reconnect would spam the inbox with the same unchanging link.
+      if (sentLinkRef.current) return { sent: false, reason: 'already-sent' }
+      sentLinkRef.current = true
+
+      try {
+        const { ok, message } = await postToWeb3Forms(buildShareLinkFormData(settings, link))
+        if (!ok) {
+          console.error('GuardCam: échec envoi email du lien de visionnage —', message ?? '(pas de détail)')
+          return { sent: false, reason: 'error' }
+        }
+        return { sent: true }
+      } catch (err) {
+        console.error('GuardCam: erreur réseau lors de l’envoi du lien de visionnage', err)
+        return { sent: false, reason: 'error' }
+      }
+    },
+    [settings]
+  )
+
+  return { sendAlert, sendShareLink }
 }

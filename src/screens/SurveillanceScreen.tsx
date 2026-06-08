@@ -53,7 +53,7 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const feedRef = useRef<CameraFeedHandle | null>(null)
   const { addAlert, attachVideo, attachSubject } = useAlertStorage()
   const { detectSubject } = useObjectDetection(settings.objectDetection)
-  const { sendAlert } = useEmailAlert(settings)
+  const { sendAlert, sendShareLink } = useEmailAlert(settings)
   const { playBeep } = useAudioAlert(settings.soundEnabled)
   const isVisible = usePageVisibility()
   const batteryLevel = useBatteryLevel()
@@ -83,6 +83,13 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
     getStream: getCameraStream,
     enabled: isReady,
   })
+
+  // Email the remote-viewing link the moment surveillance goes live, so it's
+  // already waiting in the inbox when the owner wants to check in remotely.
+  useEffect(() => {
+    if (!isReady || !peerId || !settings.viewingPin.trim()) return
+    void sendShareLink(`${window.location.origin}/regarder/${peerId}`)
+  }, [isReady, peerId, settings.viewingPin, sendShareLink])
 
   const { mode, brightness, setManualMode } = useNightVision({
     preference: settings.nightVisionMode,
