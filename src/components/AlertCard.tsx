@@ -1,4 +1,4 @@
-import { TriangleAlert, MapPin, CirclePlay, Eye, Download, Trash2, type LucideIcon } from 'lucide-react'
+import { TriangleAlert, MapPin, ScanEye, CirclePlay, Eye, Download, Trash2, type LucideIcon } from 'lucide-react'
 import { NIGHT_MODES } from '../data/nightModes'
 import { downloadDataUrl, formatTimestampForFilename } from '../utils/imageUtils'
 import { fr } from '../data/translations'
@@ -38,6 +38,12 @@ export function AlertCard({ alert, onView, onDelete }: AlertCardProps) {
             <span className="rounded border border-text-secondary/30 px-1.5 py-0.5 text-[10px] text-text-secondary">
               {typeLabel}
             </span>
+            {alert.subjectLabel && (
+              <span className="flex items-center gap-1 rounded border border-accent/35 bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">
+                <ScanEye size={11} strokeWidth={1.75} />
+                <span>{alert.subjectLabel}</span>
+              </span>
+            )}
           </p>
           <p className="flex items-center gap-1.5 truncate text-xs text-text-secondary">
             <MapPin size={13} strokeWidth={1.75} />

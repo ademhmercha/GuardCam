@@ -29,6 +29,8 @@ interface UseAlertStorageResult {
   addAlert: (input: NewAlertInput) => Promise<Alert>
   /** Stores the recorded clip blob for an alert and flags it as having a video. */
   attachVideo: (id: string, blob: Blob, mimeType: string) => Promise<void>
+  /** Patches an alert with the subject classified by the object-detection model (e.g. "Personne"). */
+  attachSubject: (id: string, label: string) => Promise<void>
   getVideo: (id: string) => Promise<Blob | null>
   deleteAlert: (id: string) => Promise<void>
   clearAll: () => Promise<void>
@@ -113,6 +115,18 @@ export function useAlertStorage(): UseAlertStorageResult {
     [db]
   )
 
+  const attachSubject = useCallback(
+    async (id: string, label: string) => {
+      const database = await db()
+      const existing = (await database.get(STORE_NAME, id)) as Alert | undefined
+      if (!existing) return
+      const updated: Alert = { ...existing, subjectLabel: label }
+      await database.put(STORE_NAME, updated)
+      setAlerts((prev) => prev.map((a) => (a.id === id ? updated : a)))
+    },
+    [db]
+  )
+
   const getVideo = useCallback(
     async (id: string): Promise<Blob | null> => {
       const database = await db()
@@ -143,5 +157,5 @@ export function useAlertStorage(): UseAlertStorageResult {
     setAlerts([])
   }, [db])
 
-  return { alerts, isLoading, addAlert, attachVideo, getVideo, deleteAlert, clearAll }
+  return { alerts, isLoading, addAlert, attachVideo, attachSubject, getVideo, deleteAlert, clearAll }
 }

@@ -18,6 +18,7 @@ import { useCamera } from '../hooks/useCamera'
 import { useNightVision } from '../hooks/useNightVision'
 import { useMotionDetection, type MotionEvent } from '../hooks/useMotionDetection'
 import { useAlertStorage } from '../hooks/useAlertStorage'
+import { useObjectDetection } from '../hooks/useObjectDetection'
 import { useEmailAlert } from '../hooks/useEmailAlert'
 import { useAudioAlert } from '../hooks/useAudioAlert'
 import { useSettings } from '../hooks/useSettings'
@@ -47,7 +48,8 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
   const navigate = useNavigate()
   const { videoRef, isReady } = useCamera()
   const feedRef = useRef<CameraFeedHandle | null>(null)
-  const { addAlert, attachVideo } = useAlertStorage()
+  const { addAlert, attachVideo, attachSubject } = useAlertStorage()
+  const { detectSubject } = useObjectDetection(settings.objectDetection)
   const { sendAlert } = useEmailAlert(settings)
   const { playBeep } = useAudioAlert(settings.soundEnabled)
   const isVisible = usePageVisibility()
@@ -113,6 +115,15 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
         })
       }
 
+      // Classify what triggered the motion ("Personne", "Chat", "Voiture", ...)
+      // on-device, then patch the alert once the model has produced a result.
+      if (settings.objectDetection) {
+        const subjectPromise = detectSubject(video)
+        void Promise.all([alertPromise, subjectPromise]).then(([alert, label]) => {
+          if (label) void attachSubject(alert.id, label)
+        })
+      }
+
       void sendAlert({
         imageData: jpeg,
         location: settings.locationName,
@@ -120,7 +131,18 @@ export function SurveillanceScreen({ settings }: SurveillanceScreenProps) {
         timestamp: event.timestamp,
       })
     },
-    [addAlert, attachVideo, mode, playBeep, sendAlert, settings.locationName, settings.recordClips]
+    [
+      addAlert,
+      attachVideo,
+      attachSubject,
+      detectSubject,
+      mode,
+      playBeep,
+      sendAlert,
+      settings.locationName,
+      settings.recordClips,
+      settings.objectDetection,
+    ]
   )
 
   const { isFlashing } = useMotionDetection({

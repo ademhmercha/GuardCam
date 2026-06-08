@@ -28,6 +28,11 @@ export const fr = {
     recordClipsOff: 'OFF',
     recordClipsHelp:
       'Enregistre un court clip vidéo filtré (~4 s) à chaque détection, en plus de la photo. Utilise plus de stockage local sur l’appareil.',
+    objectDetectionLabel: 'Détection intelligente',
+    objectDetectionOn: 'ON',
+    objectDetectionOff: 'OFF',
+    objectDetectionHelp:
+      "Identifie le sujet de chaque alerte (personne, animal, véhicule…) grâce à un modèle d'IA exécuté localement sur l'appareil — aucune image n'est envoyée en ligne.",
     startButton: 'DÉMARRER LA SURVEILLANCE',
     cameraError: 'Caméra indisponible — vérifiez les permissions.',
   },

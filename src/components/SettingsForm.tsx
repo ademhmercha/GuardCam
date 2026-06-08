@@ -102,6 +102,18 @@ export function SettingsForm({ settings, onChange }: SettingsFormProps) {
         <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.recordClipsHelp}</p>
       </Field>
 
+      <Field label={fr.setup.objectDetectionLabel}>
+        <ToggleGroup
+          options={[
+            { value: true, label: fr.setup.objectDetectionOn },
+            { value: false, label: fr.setup.objectDetectionOff },
+          ]}
+          value={settings.objectDetection}
+          onChange={(v) => onChange({ objectDetection: v })}
+        />
+        <p className="mt-2 text-xs leading-relaxed text-text-secondary">{fr.setup.objectDetectionHelp}</p>
+      </Field>
+
     </div>
   )
 }

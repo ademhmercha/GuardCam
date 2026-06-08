@@ -17,6 +17,8 @@ export interface Alert {
   /** Set once a short video clip for this event has finished recording and was attached. */
   hasVideo?: boolean
   videoMimeType?: string
+  /** Subject classified by the on-device detection model (e.g. "Personne", "Chat"), once available. */
+  subjectLabel?: string
 }
 
 export interface Settings {
@@ -27,6 +29,7 @@ export interface Settings {
   soundEnabled: boolean
   nightVisionMode: NightVisionPreference
   recordClips: boolean
+  objectDetection: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -37,6 +40,7 @@ export const DEFAULT_SETTINGS: Settings = {
   soundEnabled: true,
   nightVisionMode: 'auto',
   recordClips: true,
+  objectDetection: true,
 }
 
 /** Pixel-diff threshold (0-255 channel delta) per sensitivity step. */
